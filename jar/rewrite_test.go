@@ -70,6 +70,11 @@ func autoMitigateJAR(path string) error {
 	if err := Rewrite(f, &r.Reader); err != nil {
 		return fmt.Errorf("rewriting zip: %v", err)
 	}
+
+	// Files must be closed before rename works on Windows.
+	r.Close()
+	f.Close()
+
 	if err := os.Rename(f.Name(), path); err != nil {
 		return fmt.Errorf("renaming file: %v", err)
 	}
