@@ -1,0 +1,31 @@
+name: release
+on:
+  release:
+    types: [created]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17.x
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Build Release
+      run: ./scripts/build-release.sh
+    - name: Update Dependencies
+      run: apt-get update
+    - name: Install Dependencies
+      run: apt-get install -y jq
+    - name: Upload
+      run: |
+          ./scripts/release.sh \
+              ./bin/log4jscanner-v0.2.0-darwin-amd64.tar.gz \
+              ./bin/log4jscanner-v0.2.0-darwin-arm64.tar.gz \
+              ./bin/log4jscanner-v0.2.0-linux-amd64.tar.gz \
+              ./bin/log4jscanner-v0.2.0-linux-arm64.tar.gz \
+              ./bin/log4jscanner-v0.2.0-windows-amd64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
